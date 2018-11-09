@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		 	<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<script src="js/jquery.min.js"></script>
+		<style>
+			 *{margin:0;padding:0}
+			.clear{clear:both;}
+			body{font-family:"微软雅黑";}
+			#charts{width:100%;height:300px;margin:0 auto;}
+			.market_map_title1{
+			font-weight:bold;
+			font-family:"Arial";
+			color:#f00;text-align:center;margin-top: 10px;
+		 }
+		 .market_map_title2{
+			font-weight:bold;
+			font-family:"Arial";
+			color:#147dd6;text-align:center;
+		 }
+		 
+			.market_map_title3{font-size:18px;
+			color:#147dd6;
+			font-weight:bold;
+			font-family:"Arial";
+			text-align:center;
+			}
+			.btn_juanshui{
+			background: rgb(255,0,54);
+ 
+    text-align: center;
+    color: #fff;
+    border-radius: 10px;
+    margin: 0 auto;
+    padding: 10px 20px;
+			}
+			 
+			
+		</style>
+		<script>
+/*解决中文乱码的*/
+
+ function getUrlParam(name){
+    // 用该属性获取页面 URL 地址从问号 (?) 开始的 URL（查询部分）
+    var url = window.location.search;
+    // 正则筛选地址栏
+    var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+    // 匹配目标参数
+    var result = url.substr(1).match(reg);
+    //返回参数值
+    return result ? decodeURIComponent(result[2]) : null;
+}
+
+var $_GET = (function(){
+    var url = window.document.location.href.toString();
+    var u = url.split("?");
+    if(typeof(u[1]) == "string"){
+        u = u[1].split("&");
+        var get = {};
+        for(var i in u){
+            var j = u[i].split("=");
+            get[j[0]] = j[1];
+        }
+        return get;
+    } else {
+        return {};
+    }
+})();
+var openid = getUrlParam('openid');//用户当前名字
+var user_name = getUrlParam('name');//用户当前名字
+var user_bunum =   '';//用户当前捐的步数
+	var user_jsnum =   '';//用户当前捐水
+	var user_chaoyue =  '';//用户超越多少用户
+	var baishi_num =   '';//百世捐水 瓶水，
+	var wangyou_num =  '';//网友捐水 瓶水，
+	var province = '';//点亮的省份
+  $.get("https://hd.800best.com/api/donate/sharetotal?openId="+openid, function(result){
+	 
+	  user_bunum =  result.Data.PersonTotalStep;//用户当前捐的步数
+	  user_jsnum =  result.Data.PersonTotalBottleNum;//用户当前捐水
+	  user_chaoyue = result.Data.Percent;//用户超越多少用户
+	  baishi_num =  result.Data.SystemTotalBottleNum;//百世捐水 瓶水，
+	  wangyou_num =  result.Data.NetFriendTotalBottleNum;//网友捐水 瓶水，
+	 province =  result.Data.Provinces;//点亮的省份
+	   province = province.split(",");// 在每个逗号(,)处进行分解。
+	
+	
+	$("#user_name").text(user_name);
+$("#user_bunum_user_jsnum").html('累计已捐出<a style="color:#f00;">'+user_bunum+'</a>步（<a style="color:#f00;">'+user_jsnum+'瓶水</a>）');
+$("#user_chaoyue").html('超越<a style="color:#f00;">'+user_chaoyue+'%</a>的用户');
+//$("#baishi_num").text('截至目前，百世捐出'+baishi_num+'瓶水');
+$("#wangyou_num").html('网友共捐出<a style="color:#f00;">'+wangyou_num+'瓶水</a>');
+
+mymap();
+  });
+/* 
+var user_bunum =  $_GET['user_bunum'];//用户当前捐的步数
+var user_jsnum =  $_GET['user_jsnum'];//用户当前捐水
+var user_chaoyue = getUrlParam('user_chaoyue');//用户超越多少用户
+var baishi_num =  $_GET['baishi_num'];//百世捐水 瓶水，
+var wangyou_num =  $_GET['wangyou_num'];//网友捐水 瓶水，
+var province =  getUrlParam('province');//点亮的省份
+ province = province.split(",");// 在每个逗号(,)处进行分解。
+*/
+console.log(user_name);
+console.log(user_jsnum);
+console.log(baishi_num);
+console.log(wangyou_num);
+console.log(province);
+ 
+</script>
+	</head>
+	
+	<body style="background:rgb(206,229,243)">
+		<p class="market_map_title1" id="user_name">xxxxxx</p>
+		 <div class="market_map_title2" id="user_bunum_user_jsnum">xxxx</div>
+		 <div class="market_map_title2" id="user_chaoyue">xxxx</div>
+		<div id="charts"></div>
+		 <!-- <p class="market_map_title3" id="baishi_num">xxxxxx</p> -->
+		 <div class="market_map_title3" style=" margin-top: 20px;" id="wangyou_num">xxxxxx</div>
+		 <div style=" width: 80%;margin: 0 auto;height: 120px;margin-top:30px;"> 
+		 <img src="img/img22.png" style="width: 120px;float: left;">
+		 <img src="img/qrcode.jpg" style="float: right;width: 100px;">
+		 
+		 </div>
+		 
+		 <!--  <div style=" width: 100%;margin: 0 auto;height: 100px;margin-top:30px;background:rgb(34,85,172)"> 
+		  <div style="width:50%;margin:0 auto;float:left;text-align: center;    padding-top: 35px;">
+			<a class="btn_juanshui" id="wxxcx">继续捐水</a>
+		  </div>
+		   <div style="width:50%;margin:0 auto;float:left;text-align: center;    padding-top: 35px;">
+			<a class="btn_juanshui"  >分享给朋友</a>
+		  </div>
+		 
+		 </div> -->
+	</body>
+	<script>
+	//跳转
+ $('#wxxcx').on('click',function(s) {
+      wx.miniProgram.switchTab({
+        url:'/pages/walk/walk',
+        success: function(){
+          console.log('success')
+        },
+        fail: function(){
+          console.log('fail');
+        },
+        complete:function(){
+          console.log('complete');
+        }
+
+      });
+    });
+ 
+	</script>
+ <script src="js/echarts-all.js"></script> 
+ <script type="text/javascript" src="https://res.wx.qq.com/open/js/jweixin-1.3.0.js"></script>
+<script>
+  
+    function mymap(){
+  var mycharts = echarts.init(document.getElementById('charts'))
+		option = {
+	 
+	    dataRange: {
+	    	show:false,
+	        x: 'left',
+	        y: 'bottom',
+	        splitList: [
+	            {start: 5, end: 5, color: 'rgb(255,0,55)'},//当值为5时，区域背景
+	            {start: 10, end: 10, color: 'rgb(255,0,55)'},//当值为10时，区域背景
+	            {start: 15, end: 15, color: 'rgb(255,0,55)'},//当值为15时，区域背景
+	        ],
+	    },
+	 
+	    series : [
+	        {
+	            name: '市场分布',
+	            type: 'map',
+	            mapType: 'china',
+	            //hoverable: false,
+	            roam: false,
+	            itemStyle:{
+		                normal:{label:{show:true}},
+		                emphasis:{label:{show:false}}
+		            },
+	            data:[],
+	        }
+	    ],
+	    animation:false
+	   
+	};
+	var ini_data=[];//初始化省份数组
+	var provArr = province;//获取的省份，有可能是从后台获取
+	//正则省份，将省与市的字眼去掉，框架不识别
+    for(var i=0;i<provArr.length;i++){
+    	var str = provArr[i];
+		var re = /省|市/g;  //全局匹配
+		var str2 ={name:str.replace(re,''),value: 5};//拼接对象数组
+		ini_data.push(str2);
+    }
+    option.series[0].data=ini_data;//将拼接好的数组赋给参数集合
+    mycharts.setOption(option);//跟新图表
+	//鼠标滑过事件
+	var testStr=','+provArr.join(",")+","; 
+	mycharts.on('hover', function (param){
+		if(testStr.indexOf(","+param.name+",")!=-1){
+			return false;
+		}else{
+			param.value=15;
+			mycharts.setOption(option);
+		}
+	});
+	
+	//点击事件
+	mycharts.on('click', function (params) {//点击事件
+			select_province(params.name);
+	});
+	//初始化省颜色
+	function ini_province(){
+		var ini_len=option.series[0].data.length;
+		for(var i=0;i<ini_len;i++){
+			//初始化颜色
+			option.series[0].data[i].value=5;
+			mycharts.setOption(option);
+		}
+		
+	}
+	//选中省颜色
+	function select_province(province_name){
+		var len=option.series[0].data.length;
+		for(var i=0;i<len;i++){
+			if(option.series[0].data[i].name==province_name){//如果匹配正确
+				//先归零
+				ini_province();
+				//改变颜色
+				option.series[0].data[i].value=10;
+				mycharts.setOption(option);
+			}
+		}
+	}
+ 
+  }
+  
+	 
+	</script>
+</html>
